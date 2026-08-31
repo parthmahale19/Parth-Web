@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Fusion 360 Module | Parth Mahale</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#173226;
+  --bg-panel:#102019;
+  --bg-panel-2:#0C1914;
+  --copper:#C98A54;
+  --copper-bright:#E7A868;
+  --trace:#3E6659;
+  --trace-soft:#28473b;
+  --ink:#F1EDE3;
+  --ink-muted:#9FBBAC;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:'Inter',sans-serif;line-height:1.6;
+}
+h1,h2,h3{font-family:'Space Grotesk',sans-serif;margin:0;color:var(--ink);}
+a{color:inherit;text-decoration:none;}
+.wrap{max-width:900px;margin:0 auto;padding:0 6vw;}
+
+/* NAV */
+nav{
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.1rem 6vw;background:rgba(16,32,25,.9);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--trace-soft);
+}
+.nav-logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem;}
+.back-link{
+  font-size:.88rem;color:var(--ink-muted);border:1px solid var(--trace);
+  padding:.5rem 1rem;border-radius:3px;transition:border-color .2s,color .2s;
+}
+.back-link:hover{border-color:var(--copper);color:var(--copper-bright);}
+
+/* HEADER */
+header.page-head{padding:4.5rem 0 3rem;text-align:center;}
+.node-label{
+  display:inline-flex;align-items:center;gap:.6rem;
+  font-family:'Space Grotesk',sans-serif;font-size:.8rem;letter-spacing:.04em;
+  color:var(--copper-bright);margin-bottom:.9rem;
+}
+.node-label::before{
+  content:'';width:8px;height:8px;background:var(--copper-bright);
+  border-radius:50%;box-shadow:0 0 0 3px rgba(231,168,104,.18);
+}
+.page-title{font-size:clamp(2rem,5vw,2.7rem);font-weight:700;}
+.page-sub{color:var(--ink-muted);max-width:560px;margin:1rem auto 0;font-size:1rem;}
+
+/* PROGRESS TRACE */
+.progress-track{
+  max-width:700px;margin:2.5rem auto 0;padding:0 1rem;
+  display:flex;justify-content:space-between;position:relative;
+}
+.progress-track::before{
+  content:'';position:absolute;left:1rem;right:1rem;top:9px;height:1px;background:var(--trace);
+}
+.progress-node{
+  width:19px;height:19px;border-radius:50%;background:var(--bg);
+  border:2px solid var(--trace);display:flex;align-items:center;justify-content:center;
+  font-size:.65rem;color:var(--ink-muted);position:relative;z-index:1;
+  font-family:'Space Grotesk',sans-serif;
+}
+
+/* DAY LIST */
+.day-list{padding:3.5rem 0 5rem;}
+.day-card{
+  border:1px solid var(--trace-soft);border-radius:5px;
+  margin-bottom:1.1rem;overflow:hidden;background:var(--bg-panel);
+  transition:border-color .2s;
+}
+.day-card.open,.day-card:hover{border-color:var(--copper);}
+.day-header{
+  display:flex;align-items:center;gap:1.1rem;
+  padding:1.3rem 1.5rem;cursor:pointer;user-select:none;
+}
+.day-chip{
+  flex-shrink:0;width:46px;height:46px;border:1.5px solid var(--copper);
+  border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:'Space Grotesk',sans-serif;color:var(--copper-bright);position:relative;
+}
+.day-chip::before,.day-chip::after{content:'';position:absolute;top:50%;transform:translateY(-50%);width:6px;height:1.5px;background:var(--copper);}
+.day-chip::before{left:-6px;}
+.day-chip::after{right:-6px;}
+.day-chip .num{font-size:.62rem;letter-spacing:.05em;opacity:.85;}
+.day-chip .n{font-size:1.15rem;font-weight:700;line-height:1;}
+.day-title-wrap{flex:1;}
+.day-eyebrow{font-size:.72rem;color:var(--ink-muted);letter-spacing:.03em;}
+.day-title{font-weight:600;font-size:1.08rem;margin-top:.15rem;}
+.day-toggle{
+  width:28px;height:28px;border:1px solid var(--trace);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  color:var(--ink-muted);transition:transform .3s,border-color .2s,color .2s;
+}
+.day-card.open .day-toggle{transform:rotate(45deg);border-color:var(--copper);color:var(--copper-bright);}
+
+.day-body{
+  max-height:0;overflow:hidden;transition:max-height .35s ease;
+}
+.day-body-inner{padding:0 1.5rem 1.5rem 4.7rem;}
+
+.day-photo{
+  width:100%;aspect-ratio:16/7;border:1.5px dashed var(--trace);
+  border-radius:5px;margin-bottom:1.1rem;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--bg-panel-2);position:relative;
+}
+.day-photo img{width:100%;height:100%;object-fit:cover;display:none;}
+.day-photo.has-img{border-style:solid;border-color:var(--trace-soft);}
+.day-photo.has-img img{display:block;}
+.day-photo.has-img .day-photo-placeholder{display:none;}
+.day-photo-placeholder{
+  display:flex;flex-direction:column;align-items:center;gap:.5rem;
+  color:var(--ink-muted);font-size:.82rem;text-align:center;padding:1rem;
+}
+.day-photo-placeholder .icon{font-size:1.4rem;}
+
+.day-intro{color:var(--ink-muted);font-size:.93rem;margin:0 0 1rem;}
+
+.day-body ul{margin:0 0 1.1rem;padding:0;list-style:none;}
+.day-body li{
+  position:relative;padding:.5rem 0 .5rem 1.2rem;
+  color:var(--ink-muted);font-size:.93rem;
+  border-bottom:1px solid var(--trace-soft);
+}
+.day-body li:last-child{border-bottom:none;}
+.day-body li::before{
+  content:'';position:absolute;left:0;top:1.05rem;
+  width:6px;height:6px;border-radius:50%;background:var(--copper-bright);
+}
+
+.learned-box{
+  border:1px solid var(--trace);border-radius:4px;
+  padding:1rem 1.1rem;background:var(--bg-panel-2);
+}
+.learned-label{
+  font-family:'Space Grotesk',sans-serif;font-size:.78rem;
+  color:var(--copper-bright);letter-spacing:.03em;margin-bottom:.4rem;
+  display:flex;align-items:center;gap:.4rem;
+}
+.learned-box p{margin:0;font-size:.92rem;color:var(--ink-muted);}
+
+footer{text-align:center;padding:2rem 0;color:var(--ink-muted);font-size:.85rem;border-top:1px solid var(--trace-soft);}
+
+@media (max-width:640px){
+  .progress-track{display:none;}
+  .day-body-inner{padding-left:1.5rem;}
+  .day-header{padding:1.1rem;gap:.8rem;}
+  .day-chip{width:40px;height:40px;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Parth Mahale</div>
+  <a class="back-link" href="index.html">← Back to Portfolio</a>
+</nav>
+
+<header class="page-head">
+  <div class="wrap">
+    <p class="node-label">Learning Path</p>
+    <h1 class="page-title">Fusion 360 Module</h1>
+    <p class="page-sub">A 7-day plan for learning Fusion 360 — moving from the interface and basic sketching to full 3D modeling, assemblies, and a final project.</p>
+    <div class="progress-track">
+      <div class="progress-node">1</div>
+      <div class="progress-node">2</div>
+      <div class="progress-node">3</div>
+      <div class="progress-node">4</div>
+      <div class="progress-node">5</div>
+      <div class="progress-node">6</div>
+      <div class="progress-node">7</div>
+    </div>
+  </div>
+</header>
+
+<section class="day-list">
+  <div class="wrap">
+
+    <!-- DAY 1 -->
+    <div class="day-card open">
+      <div class="day-header" onclick="toggleDay(this)">
+        <div class="day-chip"><span class="num">DAY</span><span class="n">01</span></div>
+        <div class="day-title-wrap">
+          <div class="day-eyebrow">Getting Started</div>
+          <div class="day-title">Introduction &amp; Interface</div>
+        </div>
+        <div class="day-toggle">+</div>
+      </div>
+      <div class="day-body">
+        <div class="day-body-inner">
+          <div class="day-photo" id="day1-photo">
+            <img src="" alt="Day 1 photo" />
+            <div class="day-photo-placeholder">
+              <span class="icon">🖼️</span>
+              <span>Add a photo for Day 1</span>
+            </div>
+          </div>
+          <p class="day-intro">Day 1 introduces Fusion 360 as a combined CAD, CAM, and CAE tool, and gets you comfortable moving around its workspace before you draw your first sketch.</p>
+          <ul>
+            <li>What is Fusion 360 (CAD, CAM, CAE basics)</li>
+            <li>Workspace overview (Design, Solid, Surface)</li>
+            <li>Navigation (zoom, pan, orbit)</li>
+            <li>Create your first sketch</li>
+          </ul>
+          <div class="learned-box">
+            <div class="learned-label">📘 What I Learned</div>
+            <p>I learned that Fusion 360 combines CAD, CAM and CAE in one tool, and got comfortable navigating the workspace — zooming, panning and orbiting around a model.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 2 -->
+    <div class="day-card">
+      <div class="day-header" onclick="toggleDay(this)">
+        <div class="day-chip"><span class="num">DAY</span><span class="n">02</span></div>
+        <div class="day-title-wrap">
+          <div class="day-eyebrow">Sketching</div>
+          <div class="day-title">Sketching (2D Basics)</div>
+        </div>
+        <div class="day-toggle">+</div>
+      </div>
+      <div class="day-body">
+        <div class="day-body-inner">
+          <div class="day-photo" id="day2-photo">
+            <img src="" alt="Day 2 photo" />
+            <div class="day-photo-placeholder">
+              <span class="icon">🖼️</span>
+              <span>Add a photo for Day 2</span>
+            </div>
+          </div>
+          <p class="day-intro">Day 2 focuses on 2D sketching fundamentals — the sketch tools and constraints that keep every design fully defined and free of errors.</p>
+          <ul>
+            <li>Sketch tools: Line, Circle, Arc, Rectangle</li>
+            <li>Constraints: Coincident, Parallel, Perpendicular</li>
+            <li>Dimensions</li>
+          </ul>
+          <div class="learned-box">
+            <div class="learned-label">📘 What I Learned</div>
+            <p>I learned the core 2D sketch tools and how constraints like coincident, parallel and perpendicular keep a sketch fully defined and free of errors.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 3 -->
+    <div class="day-card">
+      <div class="day-header" onclick="toggleDay(this)">
+        <div class="day-chip"><span class="num">DAY</span><span class="n">03</span></div>
+        <div class="day-title-wrap">
+          <div class="day-eyebrow">Sketching</div>
+          <div class="day-title">Advanced Sketch Practice</div>
+        </div>
+        <div class="day-toggle">+</div>
+      </div>
+      <div class="day-body">
+        <div class="day-body-inner">
+          <div class="day-photo" id="day3-photo">
+            <img src="" alt="Day 3 photo" />
+            <div class="day-photo-placeholder">
+              <span class="icon">🖼️</span>
+              <span>Add a photo for Day 3</span>
+            </div>
+          </div>
+          <p class="day-intro">Day 3 builds on the basics with tools that speed up sketching and make it possible to construct more complex, realistic shapes.</p>
+          <ul>
+            <li>Offset, Trim, Extend</li>
+            <li>Mirror &amp; Pattern</li>
+            <li>Complex sketches</li>
+          </ul>
+          <div class="learned-box">
+            <div class="learned-label">📘 What I Learned</div>
+            <p>I learned how tools like offset, trim, extend, mirror and pattern speed up sketching and make it possible to build more complex, realistic shapes.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 4 -->
+    <div class="day-card">
+      <div class="day-header" onclick="toggleDay(this)">
+        <div class="day-chip"><span class="num">DAY</span><span class="n">04</span></div>
+        <div class="day-title-wrap">
+          <div class="day-eyebrow">Core Day 🚀</div>
+          <div class="day-title">3D Modeling</div>
+        </div>
+        <div class="day-toggle">+</div>
+      </div>
+      <div class="day-body">
+        <div class="day-body-inner">
+          <div class="day-photo" id="day4-photo">
+            <img src="" alt="Day 4 photo" />
+            <div class="day-photo-placeholder">
+              <span class="icon">🖼️</span>
+              <span>Add a photo for Day 4</span>
+            </div>
+          </div>
+          <p class="day-intro">Day 4 is the core of the module — turning flat sketches into real 3D geometry with Extrude and Revolve, then refining the edges with Fillet and Chamfer.</p>
+          <ul>
+            <li>Convert sketch → 3D using Extrude</li>
+            <li>Convert sketch → 3D using Revolve</li>
+            <li>Modify tools: Fillet</li>
+            <li>Modify tools: Chamfer</li>
+          </ul>
+          <div class="learned-box">
+            <div class="learned-label">📘 What I Learned</div>
+            <p>I learned how to turn flat sketches into real 3D geometry using Extrude and Revolve, and how to refine edges cleanly with Fillet and Chamfer.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 5 -->
+    <div class="day-card">
+      <div class="day-header" onclick="toggleDay(this)">
+        <div class="day-chip"><span class="num">DAY</span><span class="n">05</span></div>
+        <div class="day-title-wrap">
+          <div class="day-eyebrow">Assemblies</div>
+          <div class="day-title">Assembly &amp; Motion</div>
+        </div>
+        <div class="day-toggle">+</div>
+      </div>
+      <div class="day-body">
+        <div class="day-body-inner">
+          <div class="day-photo" id="day5-photo">
+            <img src="" alt="Day 5 photo" />
+            <div class="day-photo-placeholder">
+              <span class="icon">🖼️</span>
+              <span>Add a photo for Day 5</span>
+            </div>
+          </div>
+          <p class="day-intro">Day 5 moves from single parts to assemblies, looking at how components relate to each other and how joints bring motion into a design.</p>
+          <ul>
+            <li>Components vs Bodies</li>
+            <li>Joint tool</li>
+            <li>Motion study</li>
+          </ul>
+          <div class="learned-box">
+            <div class="learned-label">📘 What I Learned</div>
+            <p>I learned the difference between components and bodies, and how the Joint tool brings realistic motion into an assembly.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 6 -->
+    <div class="day-card">
+      <div class="day-header" onclick="toggleDay(this)">
+        <div class="day-chip"><span class="num">DAY</span><span class="n">06</span></div>
+        <div class="day-title-wrap">
+          <div class="day-eyebrow">Application</div>
+          <div class="day-title">Engineering Practice</div>
+        </div>
+        <div class="day-toggle">+</div>
+      </div>
+      <div class="day-body">
+        <div class="day-body-inner">
+          <div class="day-photo" id="day6-photo">
+            <img src="" alt="Day 6 photo" />
+            <div class="day-photo-placeholder">
+              <span class="icon">🖼️</span>
+              <span>Add a photo for Day 6</span>
+            </div>
+          </div>
+          <p class="day-intro">Day 6 applies everything learned so far to practical engineering parts, along with the tools used to check dimensions and accuracy.</p>
+          <ul>
+            <li>Create real parts: Spur gear (basic)</li>
+            <li>Create real parts: Plate with holes</li>
+            <li>Learn: Measure tool</li>
+            <li>Learn: Inspect</li>
+          </ul>
+          <div class="learned-box">
+            <div class="learned-label">📘 What I Learned</div>
+            <p>I learned to apply modeling skills to practical engineering parts like gears and plates, and how to use the Measure and Inspect tools to check accuracy.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 7 -->
+    <div class="day-card">
+      <div class="day-header" onclick="toggleDay(this)">
+        <div class="day-chip"><span class="num">DAY</span><span class="n">07</span></div>
+        <div class="day-title-wrap">
+          <div class="day-eyebrow">Final Project 🎯</div>
+          <div class="day-title">Final Project</div>
+        </div>
+        <div class="day-toggle">+</div>
+      </div>
+      <div class="day-body">
+        <div class="day-body-inner">
+          <div class="day-photo" id="day7-photo">
+            <img src="" alt="Day 7 photo" />
+            <div class="day-photo-placeholder">
+              <span class="icon">🖼️</span>
+              <span>Add a photo for Day 7</span>
+            </div>
+          </div>
+          <p class="day-intro">Day 7 brings the whole week together in one final project, applying sketching, modeling, and assembly skills to a complete design.</p>
+          <ul>
+            <li>Combine everything learned across the week</li>
+          </ul>
+          <div class="learned-box">
+            <div class="learned-label">📘 What I Learned</div>
+            <p>I learned how to bring sketching, modeling and assembly skills together into a single, complete final design.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Parth Mahale. Fusion 360 Module — 7 Day Plan.</p>
+</footer>
+
+<script>
+function toggleDay(headerEl){
+  const card = headerEl.parentElement;
+  const body = card.querySelector('.day-body');
+  const isOpen = card.classList.contains('open');
+
+  document.querySelectorAll('.day-card').forEach(c => {
+    c.classList.remove('open');
+    c.querySelector('.day-body').style.maxHeight = null;
+  });
+
+  if(!isOpen){
+    card.classList.add('open');
+    body.style.maxHeight = body.scrollHeight + 'px';
+  }
+}
+window.addEventListener('load', () => {
+  const first = document.querySelector('.day-card.open .day-body');
+  if(first) first.style.maxHeight = first.scrollHeight + 'px';
+});
+</script>
+</body>
+</html>
